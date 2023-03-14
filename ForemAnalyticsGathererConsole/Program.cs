@@ -2,6 +2,7 @@
 using System.Timers;
 using CommandLine;
 using ForemAnalyticsGatherer.DataGatherers;
+using ForemAnalyticsGatherer.Settings;
 using Microsoft.Extensions.Configuration;
 
 namespace ForemAnalyticsGathererConsole
@@ -15,7 +16,8 @@ namespace ForemAnalyticsGathererConsole
 
         static void Main(string[] args)
         {
-            Console.CancelKeyPress += (sender, eArgs) => {
+            Console.CancelKeyPress += (sender, eArgs) =>
+            {
                 _quitEvent.Set();
                 eArgs.Cancel = true;
             };
@@ -37,14 +39,7 @@ namespace ForemAnalyticsGathererConsole
 
             var appSettings = config.GetSection("AppSettings").Get<ForemAnalyticsGatherer.Settings.AppSettings>();
 
-            if (_commandLineOptions.ApiKey != string.Empty)
-            {
-                appSettings.ApiKey = _commandLineOptions.ApiKey;
-            }
-            else
-            {
-                Console.WriteLine("API key not passed in.  Attempting to use API key from app settings");
-            }
+            appSettings = SetCommandLineAppSettings(appSettings);
 
             if (_commandLineOptions.ArticleGatherer)
             {
@@ -66,6 +61,30 @@ namespace ForemAnalyticsGathererConsole
 
             // make sure the only way to stop this is to press ctrl + c
             _quitEvent.WaitOne();
+        }
+
+        private static AppSettings SetCommandLineAppSettings(AppSettings appSettings)
+        {
+            if (_commandLineOptions.ApiKey != string.Empty)
+            {
+                appSettings.ApiKey = _commandLineOptions.ApiKey;
+            }
+            else
+            {
+                Console.WriteLine("API key not passed in.  Attempting to use API key from app settings");
+            }
+
+            if (_commandLineOptions.NodeList.Count > 0)
+            {
+                appSettings.NodeList = _commandLineOptions.NodeList;
+            }
+
+            if (_commandLineOptions.BasePath != string.Empty)
+            {
+                appSettings.BasePath = _commandLineOptions.BasePath;
+            }
+
+            return appSettings;
         }
 
         private static void RunOptions(CommandLineOptions opts)
