@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ForemAnalyticsGathererConsole": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
